@@ -47,3 +47,57 @@ def draw_grid(grid, turt, point, tile_size):
             
             else:
                 turt.dot(tile_size-5, "white")
+
+def check_winner(grid, player):
+
+    if check_rows(grid, player) == True:
+        return True
+    elif check_cols(grid, player) == True:
+        return True
+    elif check_diagonals(grid, player) == True:
+        return True
+    else:
+        return False
+
+def check_rows(grid, player):
+
+    count = 0
+
+    for row in range(len(grid)):
+        count = 0
+        for col in range(len(grid[0])):
+            if grid[row][col] == player:
+                count += 1
+                if count == 4:
+                    return True
+                else:
+                    count = 0
+                
+def check_cols(grid, player):
+
+    count = 0
+
+    for col in range(len(grid[0])):
+        count = 0
+        for row in range(len(grid)):
+            if grid[row][col] == player:
+                count += 1
+                if count == 4:
+                    return True
+                else:
+                    count = 0
+
+def check_diagonals(grid, player):
+
+    count = 0
+
+    for row in range(len(grid)):
+        for col in range(len(grid[0])):
+
+            if row + 3 < len(grid) and col + 3 < len(grid[row]):
+                if grid[row][col] == 1\
+                and grid[row+1][col+1] == 1\
+                and grid[row+2][col+2] == 1\
+                and grid[row+3][col+3] == 1:
+                    return True
+
