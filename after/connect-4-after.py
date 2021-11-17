@@ -1,6 +1,5 @@
 # Henry Pacheco Xavier Markowitz
 
-
 import turtle
 
 def make_window(window_title, bgcolor, dimensions):
@@ -103,7 +102,7 @@ def check_diagonals(grid, player):
 
 
 # setting up the window
-window = make_window("Connect 4", "light sky blue", 800, 600)
+window = make_window("Connect 4", "light sky blue", {"width":800, "height":600})
 
 
 # the grid
@@ -113,7 +112,7 @@ for rows in range(5):
     grid.append([0]*7)
 
 # drawing_turtle
-my_turtle = make_turtle('classic', "white", 1, 1, 0, 0 )
+my_turtle = make_turtle('classic', "white", {"width":1, "length":1}, {"x":0, "y":0} )
 
 x_offset = -150
 y_offset = 200
@@ -121,15 +120,26 @@ tile_size = 50
 
 player_1_turn = True
 
-def make_move(point, player_1_turn):
+def make_move(x,y):
 
-    row = int(abs((point['x'] - y_offset - 25) // (50) + 1))
-    col = int(abs((point['y'] - x_offset - 25) // (50) + 1))
+    global player_1_turn
+
+    row = int(abs((y - y_offset - 25) // (50) + 1))
+    col = int(abs((x - x_offset - 25) // (50) + 1))
 
     if player_1_turn == True:
         grid[row][col] = 1
     else:
         grid[row][col] = 2
+
+    draw_grid(grid, my_turtle, {"x":x_offset, "y":y_offset}, tile_size)
+    window.update()
+    
+    if check_winner(grid, 1):
+            print("player 1 won")
+
+    elif check_winner(grid, 2):
+        print("player 2 won")
 
     if player_1_turn == True:
         player_1_turn = False
@@ -143,11 +153,11 @@ def main():
 
     global player_1_turn
     
-    draw_grid(grid, my_turtle, x_offset, y_offset, tile_size)
+    draw_grid(grid, my_turtle, {"x":x_offset, "y":y_offset}, tile_size)
     while True:
 
-        selected_row = int(input("enter row, player "+ str(turn) +": "))
-        selected_col = int(input("enter col, player "+ str(turn) +": "))
+        selected_row = int(input("enter row, player "+ str(player_1_turn) +": "))
+        selected_col = int(input("enter col, player "+ str(player_1_turn) +": "))
 
         if grid[selected_row][selected_col] == 0:
 
@@ -156,7 +166,7 @@ def main():
             else:
                 grid[selected_row][selected_col] = 2
 
-        draw_grid(grid, my_turtle, -150, 200, 50)
+        draw_grid(grid, my_turtle, {"x":-150, "y":200}, 50)
         window.update()
 
         if check_winner(grid, 1):
