@@ -156,29 +156,17 @@ def main():
     draw_grid(grid, my_turtle, {"x":x_offset, "y":y_offset}, tile_size)
     while True:
 
-        selected_row = int(input("enter row, player "+ str(player_1_turn) +": "))
-        selected_col = int(input("enter col, player "+ str(player_1_turn) +": "))
-
-        if grid[selected_row][selected_col] == 0:
-
-            if player_1_turn == True:
-                grid[selected_row][selected_col] = 1
-            else:
-                grid[selected_row][selected_col] = 2
 
         draw_grid(grid, my_turtle, {"x":-150, "y":200}, 50)
         window.update()
 
         if check_winner(grid, 1):
             print("player 1 won")
+            break
 
         elif check_winner(grid, 2):
             print("player 2 won")
-
-        if player_1_turn == True:
-            player_1_turn = False
-        else:
-            player_1_turn = True
+            break
 
 if __name__ == "__main__":
 	main()
