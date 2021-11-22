@@ -126,7 +126,7 @@ class Draw:
         window.bgcolor(bgcolor)
         window.setup(dimensions["width"], dimensions["height"])
         window.tracer(0)
-        self.window = window
+        return window
 
 
     def make_turtle(self, shape, color, turtle_size, point):
@@ -137,36 +137,62 @@ class Draw:
         turt.shapesize(turtle_size["width"], turtle_size["length"])
         turt.penup()
         turt.goto(point["x"],point["y"])
-        self.turt = turt
+        return turt
 
+class Pong:
+    
+    __score_format__ = "Player A: {}    Player B: {}"
+    align = "center"
+    font = ("Courier", 24, "normal")
+
+    def __init__(self, paddles, ball, window, turt):
+        self.score_player1 = 0
+        self.score_player2 = 0
+        self.paddle_1 = paddles['player_1']
+        self.paddle_2 = paddles['player_2']
+        self.ball = ball
+        self.window = window
+        self.turt = turt
+    
+    def set_bindings(self):
+        self.window.onkeypress(paddle_1.up, "w") #when you press w run paddle_a_up
+        self.window.onkeypress(paddle_1.down, "s")
+        self.window.onkeypress(paddle_2.up, "Up")
+        self.window.onkeypress(paddle_2.down, "Down")
+
+    def update_ball(self):
+        self.ball.move()
+
+    def check_left_border(self, font):
+        self.score_player1 += 1
+        self.turt.clear()
+        self.turt.write(self.__score_format__.format(self.score_player1, self.score_player2), align = self.align, font= self.font)
+        self.ball.goto(0, 0)
+        self.ball.ball_dx *= -1
+    
 
 def main():
     ''' the main function where the game events take place '''
-
-    window = make_window("Pong - A CS151 Reproduction!", "black", 800, 600)
-
-    # Score
-    score_player1 = 0
-    score_player2 = 0
+    draw_game = Draw()
+    window = draw_game.make_window("Pong - A CS151 Reproduction!", "black", {'width': 800, 'height' : 600})
+    pen = draw_game.make_turtle("square", "white", {'width' : 1, 'height' : 1}, {'x' : 0, 'y' : 260})
+    
 
     # paddels
-    paddle_1 = Paddle(-350, 0)
-    paddle_2 = Paddle(350, 0)
+    paddle_1 = Paddle(-350, 0, pen)
+    paddle_2 = Paddle(350, 0, pen)
 
     # ball
-    ball = Ball()
+    ball = Ball(pen)
 
     # Pen
-    pen = make_turtle("square", "white", 1, 1, 0, 260)
+    
     pen.write("Player A: 0  Player B: 0", align="center", font=("Courier", 24, "normal"))
     pen.hideturtle()
 
     # Keyboard bindings
     window.listen() #Listen for keyboard input
-    window.onkeypress(paddle_1.up, "w") #when you press w run paddle_a_up
-    window.onkeypress(paddle_1.down, "s")
-    window.onkeypress(paddle_2.up, "Up")
-    window.onkeypress(paddle_2.down, "Down")
+    
 
     # Main game loop
     while True:
@@ -177,11 +203,7 @@ def main():
         # Border checking    
         # Left and right
         if ball.xcor() > 350:
-            score_player1 += 1
-            pen.clear()
-            pen.write("Player A: "+ str(score_player1) + "  Player B: "+ str(score_player2), align="center", font=("Courier", 24, "normal"))
-            ball.goto(0, 0)
-            ball.ball_dx *= -1
+            
 
         elif ball.xcor() < -350:
             score_player2 += 1
