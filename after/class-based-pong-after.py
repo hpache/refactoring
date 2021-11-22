@@ -192,6 +192,24 @@ class Pong:
     def ball_reset(self):
         self.ball.teleport(0, 0)
         self.ball.ball_dx *= -1
+
+
+    def left_paddle_collision_check(self):
+
+        if self.ball.get_turtle_xcor() < -340 and self.ball.get_turtle_xcor() > -350 and \
+                                            self.ball.get_turtle_ycor() < self.paddle_1.get_turtle_ycor() + 50 and \
+                                            self.ball.get_turtle_ycor() > self.paddle_1.get_turtle_ycor() - 50:
+            self.ball.setx(-340)
+            self.ball.ball_dx *= -1.5
+    
+    def right_paddle_collision_check(self):
+
+        if self.ball.get_turtle_xcor() > 340 and self.ball.get_turtle_xcor() < 350 and \
+                                            self.ball.get_turtle_ycor() < self.paddle_2.get_turtle_ycor() + 50 and \
+                                            self.ball.get_turtle_ycor() > self.paddle_2.get_turtle_ycor() - 50:
+            self.ball.setx(340)
+            self.ball.ball_dx *= -1.5
+
     
     
     def play(self):
@@ -209,19 +227,8 @@ class Pong:
             self.update_scoreboard()
             self.ball_reset()
 
-
-        # Paddle and ball collisions
-        if self.ball.get_turtle_xcor() < -340 and self.ball.get_turtle_xcor() > -350 and \
-                                            self.ball.get_turtle_ycor() < self.paddle_1.get_turtle_ycor() + 50 and \
-                                            self.ball.get_turtle_ycor() > self.paddle_1.get_turtle_ycor() - 50:
-            self.ball.setx(-340)
-            self.ball.ball_dx *= -1.5
-        
-        elif self.ball.get_turtle_xcor() < 340 and self.ball.get_turtle_xcor() > 350 and \
-                                            self.ball.get_turtle_ycor() < self.paddle_2.get_turtle_ycor() + 50 and \
-                                            self.ball.get_turtle_ycor() > self.paddle_2.get_turtle_ycor() - 50:
-            self.ball.setx(340)
-            self.ball.ball_dx *= -1.5
+        self.left_paddle_collision_check()
+        self.right_paddle_collision_check()
 
     
 
