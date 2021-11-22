@@ -12,13 +12,13 @@ import turtle
 class Paddle:
     # implements a Pong game paddle
 
-    def __init__(self, x_position, y_position, turt):
+    def __init__(self, x_position, y_position, draw):
         ''' initializes a paddle with a position '''
 
         self.x_position = x_position
         self.y_position = y_position
 
-        self.turt = turt
+        self.turt = draw.make_turtle("square", "white", {"width":5, "length":1}, {"x":self.x_position, "y":self.y_position})
 
     def sety(self, y):
         self.turt.sety(y)
@@ -34,15 +34,25 @@ class Paddle:
         y = self.turt.ycor() #Get the current y coordinate
         y -= 20             #add 20px could also be y=y+20
         self.sety(y)
+    
+
+    def get_x_position(self):
+
+        return self.x_position
+
+    
+    def get_y_position(self):
+
+        return self.y_position
 
 
-    def xcor(self):
-        ''' returns turtle x_cord '''
+    def get_turtle_xcor(self):
+        
         return self.turt.xcor()
 
     
-    def ycor(self):
-        ''' returns turtle y_cord '''
+    def get_turtle_ycor(self):
+        
         return self.turt.ycor()
 
 
@@ -50,12 +60,12 @@ class Paddle:
 class Ball:
     # implements a Pong game ball
 
-    def __init__(self, turt):
+    def __init__(self, draw):
         ''' intializes a ball with default direction and position '''
 
-        self.turt = turt
-        self.ball_dx = 0.0925 #speed in x direction
-        self.ball_dy = 0.0925 #speed in y direction
+        self.turt = draw.make_turtle("square", "white", {"width":1, "length":1}, {"x":0, "y":0})
+        self.ball_dx = 0.925 #speed in x direction
+        self.ball_dy = 0.925 #speed in y direction
         self.x_position = 0
         self.y_position = 0
 
@@ -68,10 +78,10 @@ class Ball:
 
 
         if self.turt.ycor() > 290:
-            self.top_bounce
+            self.top_bounce()
 
         elif self.turt.ycor() < -290:
-            self.bottom_bounce
+            self.bottom_bounce()
     
 
     def top_bounce(self):
@@ -141,7 +151,7 @@ class Draw:
 
 class Pong:
     
-    __score_format__ = "Player A: {}    Player B: {}"
+    score_format = "Player A: {}    Player B: {}"
     align = "center"
     font = ("Courier", 24, "normal")
 
@@ -154,72 +164,94 @@ class Pong:
         self.window = window
         self.turt = turt
     
-    def set_bindings(self):
-        self.window.onkeypress(paddle_1.up, "w") #when you press w run paddle_a_up
-        self.window.onkeypress(paddle_1.down, "s")
-        self.window.onkeypress(paddle_2.up, "Up")
-        self.window.onkeypress(paddle_2.down, "Down")
+
+    def set_key_bindings(self):
+        self.window.onkeypress(self.paddle_1.up, "w") #when you press w run paddle_1_up
+        self.window.onkeypress(self.paddle_1.down, "s")
+        self.window.onkeypress(self.paddle_2.up, "Up")
+        self.window.onkeypress(self.paddle_2.down, "Down")
+
 
     def update_ball(self):
-        self.ball.move()
+        self.ball.move_ball()
 
-    def check_left_border(self, font):
+
+    def update_player1_score(self):
         self.score_player1 += 1
+    
+    
+    def update_player2_score(self):
+        self.score_player2 += 1
+    
+
+    def update_scoreboard(self):
         self.turt.clear()
-        self.turt.write(self.__score_format__.format(self.score_player1, self.score_player2), align = self.align, font= self.font)
-        self.ball.goto(0, 0)
+        self.turt.write(self.score_format.format(self.score_player1, self.score_player2), align = self.align, font= self.font)
+
+
+    def ball_reset(self):
+        self.ball.teleport(0, 0)
         self.ball.ball_dx *= -1
+    
+    
+    def play(self):
+
+        self.window.update()
+        self.update_ball()
+
+        if self.ball.get_turtle_xcor() > 350:
+            self.update_player1_score()
+            self.update_scoreboard()
+            self.ball_reset()
+        
+        elif self.ball.get_turtle_xcor() < -350:
+            self.update_player2_score()
+            self.update_scoreboard()
+            self.ball_reset()
+
+
+        # Paddle and ball collisions
+        if self.ball.get_turtle_xcor() < -340 and self.ball.get_turtle_xcor() > -350 and self.ball.get_turtle_ycor() < self.paddle_1.get_turtle_ycor() + 50 and self.ball.get_turtle_ycor() > self.paddle_1.get_turtle_ycor() - 50:
+            self.ball.setx(-340)
+            self.ball.ball_dx *= -1.5
+        
+        elif self.ball.get_turtle_xcor() < 340 and self.ball.get_turtle_xcor() > 350 and self.ball.get_turtle_ycor() < self.paddle_2.get_turtle_ycor() + 50 and self.ball.get_turtle_ycor() > self.paddle_2.get_turtle_ycor() - 50:
+            self.ball.setx(340)
+            self.ball.ball_dx *= -1.5
+
     
 
 def main():
     ''' the main function where the game events take place '''
     draw_game = Draw()
     window = draw_game.make_window("Pong - A CS151 Reproduction!", "black", {'width': 800, 'height' : 600})
-    pen = draw_game.make_turtle("square", "white", {'width' : 1, 'height' : 1}, {'x' : 0, 'y' : 260})
+    pen = draw_game.make_turtle("square", "white", {'width' : 1, 'length' : 1}, {'x' : 0, 'y' : 260})
     
 
     # paddels
-    paddle_1 = Paddle(-350, 0, pen)
-    paddle_2 = Paddle(350, 0, pen)
+    paddle_1 = Paddle(-350, 0, draw_game)
+    paddle_2 = Paddle(350, 0, draw_game)
 
     # ball
-    ball = Ball(pen)
+    ball = Ball(draw_game)
 
     # Pen
-    
     pen.write("Player A: 0  Player B: 0", align="center", font=("Courier", 24, "normal"))
     pen.hideturtle()
 
+    # game object
+    game = Pong({"player_1": paddle_1, "player_2": paddle_2}, ball, window, pen)
+
     # Keyboard bindings
     window.listen() #Listen for keyboard input
+    game.set_key_bindings()
     
 
     # Main game loop
     while True:
-        window.update() #This is the update to offset the wn.tracer(0)
-
-        ball.move()
-
-        # Border checking    
-        # Left and right
-        if ball.xcor() > 350:
-            
-
-        elif ball.xcor() < -350:
-            score_player2 += 1
-            pen.clear()
-            pen.write("Player A: "+ str(score_player1) + "  Player B: "+ str(score_player2), align="center", font=("Courier", 24, "normal"))
-            ball.goto(0, 0)
-            ball.ball_dx *= -1
-
-        # Paddle and ball collisions
-        if ball.xcor() < -340 and ball.xcor() > -350 and ball.ycor() < paddle_1.ycor() + 50 and ball.ycor() > paddle_1.ycor() - 50:
-            ball.setx(-340)
-            ball.ball_dx *= -1.5
         
-        elif ball.xcor() > 340 and ball.xcor() < 350 and ball.ycor() < paddle_2.ycor() + 50 and ball.ycor() > paddle_2.ycor() - 50:
-            ball.setx(340)
-            ball.ball_dx *= -1.5
+        game.play()
+
 
 
 
